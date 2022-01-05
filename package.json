@@ -34,5 +34,10 @@
   },
   "volta": {
     "node": "16.13.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn run lint"
+    }
   }
 }
