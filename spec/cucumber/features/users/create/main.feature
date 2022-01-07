@@ -1,6 +1,6 @@
 Feature: Create User
 
-  Clients should be able to send a request to our API in order to create a user. Our API should also validate the structure of the payload and respond with an if it is invalid.
+  Clients should be able to send a request to our API in order to create a user. Our API should also validate the structure of the payload and respond with an error if it is invalid.
 
   Scenario: Empty Payload
 
