@@ -2,15 +2,32 @@ import superagent from 'superagent';
 import { Then, When } from '@cucumber/cucumber';
 import assert from 'assert';
 
-When('the client creates a POST request to users', async function () {
-  this.request = superagent(
-    'POST',
-    `${process.env.SERVER_HOSTNAME}:${process.env.SERVER_PORT}/users`
-  );
-});
+When(
+  /^the client creates a (GET|POST|PUT|DELETE) request to ([/\w-:]+)$/,
+  async function (method, path) {
+    this.request = superagent(
+      method,
+      `${process.env.SERVER_HOSTNAME}:${process.env.SERVER_PORT}${path}`
+    );
+  }
+);
 
-When('attaches a generic empty payload', async function () {
-  return undefined;
+When(/attaches a generic (.+) payload$/, async function (payloadType) {
+  switch (payloadType) {
+    case 'malformed':
+      this.request.set('Content-Type', 'application/json');
+      this.request.send('{"email": "kez@akeju.com", name:}');
+      break;
+    case 'non-JSON':
+      this.request.set('Content-Type', 'text/xml');
+      this.request.send(
+        '<?xml version="1.0" encodoing="UTF-8"?><email>kez@akeju.com</email>'
+      );
+      break;
+    case 'empty':
+    default:
+      break;
+  }
 });
 
 When('sends the request', async function () {
@@ -22,11 +39,14 @@ When('sends the request', async function () {
   }
 });
 
-Then('our API should respond with a 400 HTTP status code', async function () {
-  assert.equal(this.response.statusCode, 400);
-});
+Then(
+  /our API should respond with a ([1-5]\d{2}) HTTP status code/,
+  async function (statusCode) {
+    assert.equal(this.response.statusCode, statusCode);
+  }
+);
 
-Then('the payload of the response shoud be a JSON object', function () {
+Then('the payload of the response should be a JSON object', function () {
   const contentType =
     this.response.headers['Content-Type'] ||
     this.response.headers['content-type'];
@@ -42,8 +62,8 @@ Then('the payload of the response shoud be a JSON object', function () {
 });
 
 Then(
-  'contains a message property which say "Payload should not be empty"',
-  function () {
-    assert.equal(this.responsePayload.message, 'Payload should not be empty');
+  /^contains a message property which says (?:"|')(.*)(?:"|')$/,
+  async function (message) {
+    assert.equal(this.responsePayload.message, message);
   }
 );
