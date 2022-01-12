@@ -12,6 +12,7 @@
     "func-names": "off",
     "prefer-arrow-callback": "off",
     "comma-dangle": ["error", "never"],
-    "operator-linebreak": "off"
+    "operator-linebreak": "off",
+    "import/prefer-default-export": "off"
   }
 }

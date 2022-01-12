@@ -2,7 +2,9 @@ import superagent from 'superagent';
 import elasticsearch from 'elasticsearch';
 import { Then, When } from '@cucumber/cucumber';
 import assert from 'assert';
+import { convertStringToArray, getValidPayload } from './utils';
 
+// eslint-disable-next-line no-unused-vars
 const client = new elasticsearch.Client(
   `${process.env.ELASTICSEARCH_PROTOCOL}://${process.env.ELASTICSEARCH_HOSTNAME}:$${process.env.ELASTICSEARCH_PORT}`
 );
@@ -64,13 +66,8 @@ When(
 When(
   /attaches an? (.+) payload where the ([a-zA-Z0-9, ]+) fields? (?:is|are)(\s+not) a ([a-zA-Z0-9]+)$/,
   function (payloadType, fields, invert, type) {
-    const payload = {
-      email: {
-        is: 'string',
-        not: 'great'
-      },
-      password: 50
-    };
+    this.requestPayload = getValidPayload(payloadType);
+    const fieldsToModify = convertStringToArray(fields);
 
     const typeKey = type.toLowerCase();
     const invertKey = invert ? 'not' : 'is';
@@ -81,18 +78,29 @@ When(
       }
     };
 
-    const fieldsToModify = fields
-      .split(',')
-      .map((s) => s.trim())
-      .filter((s) => s !== '');
-
     fieldsToModify.forEach((field) => {
-      payload[field] = sampleValues[typeKey][invertKey];
+      this.requestPayload[field] = sampleValues[typeKey][invertKey];
     });
 
     this.request
       .set('Content-Type', 'application/json')
-      .send(JSON.stringify(payload));
+      .send(JSON.stringify(this.requestPayload));
+  }
+);
+
+When(
+  /^attaches an? (.+) payload where the ([a-zA-Z0-9, ]+) fields? (?:is|are) exactly (.+)$/,
+  function (payloadType, fields, value) {
+    this.requestPayload = getValidPayload(payloadType);
+
+    const fieldsToModify = convertStringToArray(fields);
+    fieldsToModify.forEach((field) => {
+      this.requestPayload[field] = value;
+    });
+
+    this.request
+      .set('Content-Type', 'application/json')
+      .send(JSON.stringify(this.requestPayload));
   }
 );
 

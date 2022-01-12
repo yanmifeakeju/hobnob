@@ -53,6 +53,12 @@ app.post('/users', (req, res) => {
     });
     return;
   }
+
+  if (!/^[\w.+]+@\w+\.\w+$/.test(req.body.emal)) {
+    res.status(400).json({ message: 'The email field must be a valid email' });
+    return;
+  }
+
   res.status(200).send();
 });
 
@@ -66,8 +72,6 @@ app.use((err, req, res, next) => {
     res.status(400).json({ message: 'Malformed JSON in request body' });
     return;
   }
-
-  console.log(req.headers['content-length']);
 
   next();
 });
