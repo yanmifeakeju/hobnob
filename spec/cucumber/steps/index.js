@@ -61,6 +61,41 @@ When(
   }
 );
 
+When(
+  /attaches an? (.+) payload where the ([a-zA-Z0-9, ]+) fields? (?:is|are)(\s+not) a ([a-zA-Z0-9]+)$/,
+  function (payloadType, fields, invert, type) {
+    const payload = {
+      email: {
+        is: 'string',
+        not: 'great'
+      },
+      password: 50
+    };
+
+    const typeKey = type.toLowerCase();
+    const invertKey = invert ? 'not' : 'is';
+    const sampleValues = {
+      string: {
+        is: 'string',
+        not: 10
+      }
+    };
+
+    const fieldsToModify = fields
+      .split(',')
+      .map((s) => s.trim())
+      .filter((s) => s !== '');
+
+    fieldsToModify.forEach((field) => {
+      payload[field] = sampleValues[typeKey][invertKey];
+    });
+
+    this.request
+      .set('Content-Type', 'application/json')
+      .send(JSON.stringify(payload));
+  }
+);
+
 When('sends the request', async function () {
   try {
     const response = await this.request;

@@ -41,7 +41,16 @@ app.post('/users', (req, res) => {
     res.status(400).json({
       message: 'Payload must contain at least the email and password fields'
     });
+    return;
+  }
 
+  if (
+    typeof req.body.email !== 'string' ||
+    typeof req.body.password !== 'string'
+  ) {
+    res.status(400).json({
+      message: 'The email and password field must be type string'
+    });
     return;
   }
   res.status(200).send();
