@@ -37,6 +37,10 @@ When(/attaches a generic (.+) payload$/, async function (payloadType) {
   }
 });
 
+When(/^without a (?:"|')([\w-]+)(?:"|') header set$/, function (headerName) {
+  this.request.unset(headerName);
+});
+
 When('sends the request', async function () {
   try {
     const response = await this.request;

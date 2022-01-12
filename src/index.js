@@ -13,12 +13,25 @@ app.use((req, res, next) => {
 });
 
 app.use((req, res, next) => {
-  if (!req.headers['content-type'].includes('application/json')) {
+  if (
+    req.headers['content-type'] &&
+    !req.headers['content-type'].includes('application/json')
+  ) {
     return res.status(415).json({
       message: 'The "Content-Type" header must always be "application/json"'
     });
   }
   return next();
+});
+
+app.use((req, res, next) => {
+  if (!req.headers['content-type'] && req.headers['content-length'] !== 0) {
+    res.status(400).json({
+      message:
+        'The  "Content-Type" header must be set for request with a non-empty payload'
+    });
+  }
+  next();
 });
 
 app.use(express.json());
@@ -37,6 +50,8 @@ app.use((err, req, res, next) => {
     res.status(400).json({ message: 'Malformed JSON in request body' });
     return;
   }
+
+  console.log(req.headers['content-length']);
 
   next();
 });
