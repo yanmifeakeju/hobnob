@@ -13,6 +13,7 @@
     "prefer-arrow-callback": "off",
     "comma-dangle": ["error", "never"],
     "operator-linebreak": "off",
-    "import/prefer-default-export": "off"
+    "import/prefer-default-export": "off",
+    "no-underscore-dangle": "off"
   }
 }

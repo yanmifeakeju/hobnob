@@ -1,15 +1,20 @@
 import express from 'express';
+import elasticsearch from 'elasticsearch';
 
 const app = express();
+const client = new elasticsearch.Client({
+  host: `${process.env.ELASTICSEARCH_PROTOCOL}://${process.env.ELASTICSEARCH_HOSTNAME}:${process.env.ELASTICSEARCH_PORT}`
+});
 
 app.use((req, res, next) => {
   if (
     ['POST', 'PUT'].includes(req.method) &&
     req.headers['content-length'] === '0'
   ) {
-    return res.status(400).json({ message: 'Payload should not be empty' });
+    res.status(400).json({ message: 'Payload should not be empty' });
+    return;
   }
-  return next();
+  next();
 });
 
 app.use((req, res, next) => {
@@ -30,13 +35,14 @@ app.use((req, res, next) => {
       message:
         'The  "Content-Type" header must be set for request with a non-empty payload'
     });
+    return;
   }
   next();
 });
 
 app.use(express.json());
 
-app.post('/users', (req, res) => {
+app.post('/users', async (req, res) => {
   if (!req.body.email || !req.body.password) {
     res.status(400).json({
       message: 'Payload must contain at least the email and password fields'
@@ -58,8 +64,20 @@ app.post('/users', (req, res) => {
     res.status(400).json({ message: 'The email field must be a valid email' });
     return;
   }
-  res.set('Content-Type', 'text/plain');
-  res.status(201).send('User created');
+
+  try {
+    const result = await client.index({
+      index: 'hobnob',
+      type: 'user',
+      body: req.body
+    });
+    res.set('Content-Type', 'text/plain');
+
+    res.status(201).send(result._id);
+    return;
+  } catch (error) {
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
 });
 
 app.use((err, req, res, next) => {

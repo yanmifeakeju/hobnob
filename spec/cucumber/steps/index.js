@@ -4,11 +4,9 @@ import { Then, When } from '@cucumber/cucumber';
 import assert from 'assert';
 import { convertStringToArray, getValidPayload } from './utils';
 
-// eslint-disable-next-line no-unused-vars
-const client = new elasticsearch.Client(
-  `${process.env.ELASTICSEARCH_PROTOCOL}://${process.env.ELASTICSEARCH_HOSTNAME}:$${process.env.ELASTICSEARCH_PORT}`
-);
-
+const client = new elasticsearch.Client({
+  host: `${process.env.ELASTICSEARCH_PROTOCOL}://${process.env.ELASTICSEARCH_HOSTNAME}:${process.env.ELASTICSEARCH_PORT}`
+});
 When(
   /^the client creates a (GET|POST|PUT|DELETE) request to ([/\w-:]+)$/,
   async function (method, path) {
@@ -165,3 +163,25 @@ Then(
     assert.equal(this.responsePayload.message, message);
   }
 );
+
+Then(
+  /^the payload object should be added to the database under the "([a-zA-Z]+)" type$/,
+  async function (type) {
+    this.type = type;
+    const result = await client.get({
+      index: 'hobnob',
+      type: this.type,
+      id: this.responsePayload
+    });
+    assert.deepEqual(result._source, this.requestPayload);
+  }
+);
+
+Then('the  newly-created user should be deleted', async function () {
+  const result = await client.delete({
+    index: 'hobnob',
+    type: this.type,
+    id: this.responsePayload
+  });
+  assert.equal(result.result, 'deleted');
+});
