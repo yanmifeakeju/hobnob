@@ -1,21 +1,29 @@
 import express from 'express';
 
 const app = express();
+
+app.use((req, res, next) => {
+  if (
+    ['POST', 'PUT'].includes(req.method) &&
+    req.headers['content-length'] === '0'
+  ) {
+    return res.status(400).json({ message: 'Payload should not be empty' });
+  }
+  return next();
+});
+
+app.use((req, res, next) => {
+  if (!req.headers['content-type'].includes('application/json')) {
+    return res.status(415).json({
+      message: 'The "Content-Type" header must always be "application/json"'
+    });
+  }
+  return next();
+});
+
 app.use(express.json());
 
 app.post('/users', (req, res) => {
-  if (req.headers['content-length'] === '0') {
-    res.status(400).json({ message: 'Payload should not be empty' });
-    return;
-  }
-
-  if (req.headers['content-type'] !== 'application/json') {
-    res.status(415).json({
-      message: 'The "Content-Type" header must always be "application/json"'
-    });
-    return;
-  }
-
   res.status(200).send();
 });
 
@@ -27,6 +35,7 @@ app.use((err, req, res, next) => {
     err.type === 'entity.parse.failed'
   ) {
     res.status(400).json({ message: 'Malformed JSON in request body' });
+    return;
   }
 
   next();

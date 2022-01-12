@@ -1,6 +1,11 @@
 import superagent from 'superagent';
+import elasticsearch from 'elasticsearch';
 import { Then, When } from '@cucumber/cucumber';
 import assert from 'assert';
+
+const client = new elasticsearch.Client(
+  `${process.env.ELASTICSEARCH_PROTOCOL}://${process.env.ELASTICSEARCH_HOSTNAME}:$${process.env.ELASTICSEARCH_PORT}`
+);
 
 When(
   /^the client creates a (GET|POST|PUT|DELETE) request to ([/\w-:]+)$/,
@@ -16,7 +21,7 @@ When(/attaches a generic (.+) payload$/, async function (payloadType) {
   switch (payloadType) {
     case 'malformed':
       this.request.set('Content-Type', 'application/json');
-      this.request.send('{"email": "kez@akeju.com", name:}');
+      this.request.send('{"email": "kez@akeju.com", "name":}');
       break;
     case 'non-JSON':
       this.request.set('Content-Type', 'text/xml');
@@ -25,6 +30,8 @@ When(/attaches a generic (.+) payload$/, async function (payloadType) {
       );
       break;
     case 'empty':
+      this.request.set('Content-Type', 'application/json');
+      break;
     default:
       break;
   }
