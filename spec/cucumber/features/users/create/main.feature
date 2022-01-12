@@ -12,8 +12,25 @@ Feature: Create User
     And contains a message property which says <message>
 
 
+
+
     Examples:
       | payloadType | statusCode | message                                                       |
       | empty       | 400        | "Payload should not be empty"                                 |
       | non-JSON    | 415        | 'The "Content-Type" header must always be "application/json"' |
       | malformed   | 400        | "Malformed JSON in request body"                              |
+
+
+  Scenario Outline: Bad Request Payload
+
+    When the client creates a POST request to /users
+    And attaches a Create User payload which is missing the <missingFields> field
+    And sends the request
+    Then our API should respond with a 400 HTTP status code
+    And the payload of the response should be a JSON object
+    And contains a message property which says "Payload must contain at least the email and password fields"
+
+    Examples:
+      | missingFields |
+      | email         |
+      | password      |

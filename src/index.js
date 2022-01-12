@@ -37,6 +37,13 @@ app.use((req, res, next) => {
 app.use(express.json());
 
 app.post('/users', (req, res) => {
+  if (!req.body.email || !req.body.password) {
+    res.status(400).json({
+      message: 'Payload must contain at least the email and password fields'
+    });
+
+    return;
+  }
   res.status(200).send();
 });
 
