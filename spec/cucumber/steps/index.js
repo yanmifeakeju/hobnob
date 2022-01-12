@@ -104,6 +104,14 @@ When(
   }
 );
 
+When(/^attaches a valid (.+) payload/, function (payloadType) {
+  this.requestPayload = getValidPayload(payloadType);
+  this.requestPayload.email = 'kez@mail.com';
+  this.request
+    .set('Content-Type', 'application/json')
+    .send(JSON.stringify(this.requestPayload));
+});
+
 When('sends the request', async function () {
   try {
     const response = await this.request;
@@ -120,20 +128,36 @@ Then(
   }
 );
 
-Then('the payload of the response should be a JSON object', function () {
-  const contentType =
-    this.response.headers['Content-Type'] ||
-    this.response.headers['content-type'];
+Then(
+  /^the payload of the response should be an? ([a-zA-Z0-9, ]+)$/,
+  function (payloadType) {
+    const contentType =
+      this.response.headers['Content-Type'] ||
+      this.response.headers['content-type'];
 
-  if (!contentType || !contentType.includes('application/json')) {
-    throw new Error('Response not of Content-Type application/json');
+    if (payloadType === 'JSON object') {
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Response not of Content-Type application/json');
+      }
+      try {
+        this.responsePayload = JSON.parse(this.response.text);
+      } catch (err) {
+        throw new Error('Response not a valid JSON Object');
+      }
+    }
+
+    if (payloadType === 'string') {
+      if (!contentType || !contentType.includes('text/plain')) {
+        throw new Error('Response not of Content-Type text/plain');
+      }
+
+      this.responsePayload = this.response.text;
+      if (typeof this.responsePayload !== 'string') {
+        throw new Error('Response is  not a string');
+      }
+    }
   }
-  try {
-    this.responsePayload = JSON.parse(this.response.text);
-  } catch (err) {
-    throw new Error('Response not a valid JSON Object');
-  }
-});
+);
 
 Then(
   /^contains a message property which says (?:"|')(.*)(?:"|')$/,

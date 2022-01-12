@@ -54,12 +54,12 @@ app.post('/users', (req, res) => {
     return;
   }
 
-  if (!/^[\w.+]+@\w+\.\w+$/.test(req.body.emal)) {
+  if (!/^[\w.+]+@\w+\.\w+$/.test(req.body.email)) {
     res.status(400).json({ message: 'The email field must be a valid email' });
     return;
   }
-
-  res.status(200).send();
+  res.set('Content-Type', 'text/plain');
+  res.status(201).send('User created');
 });
 
 app.use((err, req, res, next) => {
