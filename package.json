@@ -10,7 +10,7 @@
     "fix": "eslint src --fix",
     "lint": "eslint src",
     "precommit": "yarn run lint",
-    "test:e2e": "dotenv -e envs/test.env -e envs/.env cucumber-js -- spec/cucumber/features --require-module @babel/register --require spec/cucumber/steps   --publish-quiet"
+    "test:e2e": "dotenv -e envs/test.env -e envs/.env ./scripts/e2e.test.sh"
   },
   "repository": {
     "type": "git",
