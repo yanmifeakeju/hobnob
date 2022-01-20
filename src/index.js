@@ -1,44 +1,20 @@
 import express from 'express';
 import elasticsearch from 'elasticsearch';
+import checkEmptyPayload from './middlewares/check-empty-payload';
+import checkContentTypeIsJSON from './middlewares/check-content-type-is-json';
+import checkContentTypeIsSet from './middlewares/check-content-type-is-set';
+import errorHandler from './middlewares/error-handler';
 
 const app = express();
 const client = new elasticsearch.Client({
   host: `${process.env.ELASTICSEARCH_PROTOCOL}://${process.env.ELASTICSEARCH_HOSTNAME}:${process.env.ELASTICSEARCH_PORT}`
 });
 
-app.use((req, res, next) => {
-  if (
-    ['POST', 'PUT'].includes(req.method) &&
-    req.headers['content-length'] === '0'
-  ) {
-    res.status(400).json({ message: 'Payload should not be empty' });
-    return;
-  }
-  next();
-});
+app.use(checkContentTypeIsSet);
 
-app.use((req, res, next) => {
-  if (
-    req.headers['content-type'] &&
-    !req.headers['content-type'].includes('application/json')
-  ) {
-    return res.status(415).json({
-      message: 'The "Content-Type" header must always be "application/json"'
-    });
-  }
-  return next();
-});
+app.use(checkContentTypeIsJSON);
 
-app.use((req, res, next) => {
-  if (!req.headers['content-type'] && req.headers['content-length'] !== 0) {
-    res.status(400).json({
-      message:
-        'The  "Content-Type" header must be set for request with a non-empty payload'
-    });
-    return;
-  }
-  next();
-});
+app.use(checkEmptyPayload);
 
 app.use(express.json());
 
@@ -80,19 +56,7 @@ app.post('/users', async (req, res) => {
   }
 });
 
-app.use((err, req, res, next) => {
-  if (
-    err instanceof SyntaxError &&
-    err.status === 400 &&
-    'body' in err &&
-    err.type === 'entity.parse.failed'
-  ) {
-    res.status(400).json({ message: 'Malformed JSON in request body' });
-    return;
-  }
-
-  next();
-});
+app.use(errorHandler);
 
 app.listen(process.env.SERVER_PORT, () => {
   // eslint-disable-next-line no-console
