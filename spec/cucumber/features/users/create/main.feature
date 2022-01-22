@@ -9,14 +9,14 @@ Feature: Create User
     And sends the request
     Then our API should respond with a <statusCode> HTTP status code
     And the payload of the response should be a JSON object
-    And contains a message property which says <message>
+    And contains a message property which says "<message>"
 
 
     Examples:
-      | payloadType | statusCode | message                                                       |
-      | empty       | 400        | "Payload should not be empty"                                 |
-      | non-JSON    | 415        | 'The "Content-Type" header must always be "application/json"' |
-      | malformed   | 400        | "Malformed JSON in request body"                              |
+      | payloadType | statusCode | message                                                     |
+      | empty       | 400        | Payload should not be empty                                 |
+      | non-JSON    | 415        | The "Content-Type" header must always be "application/json" |
+      | malformed   | 400        | Malformed JSON in request body                              |
 
 
   Scenario Outline: Bad Request Payload
@@ -26,12 +26,12 @@ Feature: Create User
     And sends the request
     Then our API should respond with a 400 HTTP status code
     And the payload of the response should be a JSON object
-    And contains a message property which says "Payload must contain at least the email and password fields"
+    And contains a message property which says "<message>"
 
     Examples:
-      | missingFields |
-      | email         |
-      | password      |
+      | missingFields | message                                            |
+      | email         | The payload must have required property 'email'    |
+      | password      | The payload must have required property 'password' |
 
 
   Scenario Outline: Request Payload with Properties of Unsupported Type
@@ -41,7 +41,7 @@ Feature: Create User
     And sends the request
     Then our API should respond with a 400 HTTP status code
     And the payload of the response should be a JSON object
-    And contains a message property which says "The email and password field must be type string"
+    And contains a message property which says "The '.<field>' field must be <type>"
 
 
     Examples:
@@ -55,7 +55,7 @@ Feature: Create User
     And sends the request
     Then our API should respond with a 400 HTTP status code
     And the payload of the response should be a JSON object
-    And contains a message property which says "The email field must be a valid email"
+    And contains a message property which says "The '.email' field must be a valid email"
 
     Examples:
       | email     |
@@ -71,4 +71,21 @@ Feature: Create User
     Then our API should respond with a 201 HTTP status code
     And the payload of the response should be a string
     And the payload object should be added to the database under the "user" type
-    And the  newly-created user should be deleted
+    And the newly-created user should be deleted
+
+  Scenario Outline: Invalid Profile
+    When the client creates a POST request to /users
+    And attaches <payload> as the payload
+    And sends the request
+    Then our API should respond with a 400 HTTP status code
+    And the payload of the response should be a JSON object
+    And contains a message property which says "<message>"
+
+    Examples:
+      | payload                                                                          | message                                                   |
+      | {"email":"e@ma.il","password":"abc","profile":{"foo":"bar"}}                     | The '.profile' object does not support the field 'foo'    |
+      | {"email":"e@ma.il","password":"abc","profile":{"name":{"first":"Jane","a":"b"}}} | The '.profile.name' object does not support the field 'a' |
+      | {"email":"e@ma.il","password":"abc","profile":{"summary":0}}                     | The '.profile.summary' field must be string               |
+      | {"email":"e@ma.il","password":"abc","profile":{"bio":0}}                         | The '.profile.bio' field must be string                   |
+
+

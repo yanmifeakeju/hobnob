@@ -4,7 +4,7 @@
   "description": "A small user directory",
   "main": "index.js",
   "scripts": {
-    "build": "rm -rf dist/ && babel src -d dist",
+    "build": "rm -rf dist/ && babel src -d dist --copy-files",
     "serve": "yarn run build && dotenv -e envs/.env node dist",
     "watch": "nodemon -w src --exec yarn run serve",
     "fix": "eslint src --fix",
@@ -45,6 +45,7 @@
     }
   },
   "dependencies": {
+    "ajv": "^8.9.0",
     "dotenv-cli": "^4.1.1",
     "elasticsearch": "^16.7.2",
     "express": "^4.17.2"

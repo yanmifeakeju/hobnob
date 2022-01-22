@@ -104,10 +104,18 @@ When(
 
 When(/^attaches a valid (.+) payload/, function (payloadType) {
   this.requestPayload = getValidPayload(payloadType);
-  this.requestPayload.email = 'kez@mail.com';
+
   this.request
     .set('Content-Type', 'application/json')
     .send(JSON.stringify(this.requestPayload));
+});
+
+When(/^attaches (.+) as the payload$/, function (payload) {
+  this.requestPayload = JSON.parse(payload);
+
+  this.request
+    .set('Content-Type', 'application/json')
+    .send(this.requestPayload);
 });
 
 When('sends the request', async function () {
@@ -160,6 +168,9 @@ Then(
 Then(
   /^contains a message property which says (?:"|')(.*)(?:"|')$/,
   async function (message) {
+    if (!this.responsePayload) {
+      throw new Error(JSON.stringify(this.response), null, 4);
+    }
     assert.equal(this.responsePayload.message, message);
   }
 );
@@ -169,7 +180,7 @@ Then(
   async function (type) {
     this.type = type;
     const result = await client.get({
-      index: 'hobnob',
+      index: process.env.ELASTICSEARCH_INDEX,
       type: this.type,
       id: this.responsePayload
     });
@@ -177,9 +188,9 @@ Then(
   }
 );
 
-Then('the  newly-created user should be deleted', async function () {
+Then('the newly-created user should be deleted', async function () {
   const result = await client.delete({
-    index: 'hobnob',
+    index: process.env.ELASTICSEARCH_INDEX,
     type: this.type,
     id: this.responsePayload
   });
