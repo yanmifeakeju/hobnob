@@ -9,8 +9,12 @@ import injectHandlerDependecies from './utils/injectHandlerDependecies';
 
 const app = express();
 const client = new elasticsearch.Client({
-  host: `${process.env.ELASTICSEARCH_PROTOCOL}://${process.env.ELASTICSEARCH_HOSTNAME}:${process.env.ELASTICSEARCH_PORT}`
+  host: `${process.env.ELASTICSEARCH_PROTOCOL}://${process.env.ELASTICSEARCH_HOSTNAME}:${process.env.ELASTICSEARCH_PORT}`,
+  log: 'trace',
+  sniffOnStart: true
 });
+
+app.use(express.json());
 
 app.use(checkContentTypeIsSet);
 

@@ -9,12 +9,13 @@ fi
 
 RETRY_INTERVAL=${RETRY_INTERVAL:-0.2}
 if ! systemctl --quiet is-active elasticsearch.service; then
-  sudo systemctl start elasticsearch.service
+   sudo systemctl restart elasticsearch.service
   # Wait unitl Elasticsearch is ready to respond
   until curl --silent $ELASTICSEARCH_HOSTNAME:$ELASTICSEARCH_PORT -w ""  -o /dev/null; do
     sleep $RETRY_INTERVAL
   done
 fi
+
 
 yarn run serve &
 
