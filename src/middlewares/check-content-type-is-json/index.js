@@ -3,7 +3,8 @@ function checkContentTypeIsJSON(req, res, next) {
     req.headers['content-type'] &&
     !req.headers['content-type'].includes('application/json')
   ) {
-    return res.status(415).json({
+    res.status(415);
+    return res.json({
       message: 'The "Content-Type" header must always be "application/json"'
     });
   }

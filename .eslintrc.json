@@ -15,5 +15,13 @@
     "operator-linebreak": "off",
     "import/prefer-default-export": "off",
     "no-underscore-dangle": "off"
-  }
+  },
+  "overrides": [
+    {
+      "files": ["*.test.js"],
+      "env": {
+        "mocha": true
+      }
+    }
+  ]
 }
