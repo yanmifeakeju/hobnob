@@ -8,7 +8,7 @@ describe('checkEmptyPayload', () => {
   let req;
   let res;
   let next;
-  describe('When req.method is not one of POST, PATCH, or PUT', function () {
+  describe('req.method is not one of POST, PATCH, or PUT', function () {
     let cloneRes;
 
     this.beforeEach(function () {
@@ -37,7 +37,7 @@ describe('checkEmptyPayload', () => {
           req = {
             method,
             headers: {
-              'content-lenght': '1'
+              'content-length': '1'
             }
           };
           res = {};
