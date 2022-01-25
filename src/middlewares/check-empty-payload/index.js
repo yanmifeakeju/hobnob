@@ -3,10 +3,10 @@ function checkEmptyPayload(req, res, next) {
     ['POST', 'PUT'].includes(req.method) &&
     req.headers['content-length'] === '0'
   ) {
-    res.status(400).json({ message: 'Payload should not be empty' });
-    return;
+    res.status(400);
+    return res.json({ message: 'Payload should not be empty' });
   }
-  next();
+  return next();
 }
 
 export default checkEmptyPayload;
