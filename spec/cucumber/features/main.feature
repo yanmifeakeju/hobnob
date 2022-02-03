@@ -25,4 +25,4 @@ Feature: General
     And sends the request
     Then our API should respond with a 400 HTTP status code
     And the payload of the response should be a JSON object
-    And contains a message property which says 'The  "Content-Type" header must be set for request with a non-empty payload'
+    And contains a message property which says 'The "Content-Type" header must be set for request with a non-empty payload'

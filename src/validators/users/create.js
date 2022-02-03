@@ -4,7 +4,7 @@ import createUserSchema from '../../schema/users/create.json';
 import ValidationError from '../errors/validation-error';
 import generateValidationErrorMessage from '../errors/messages';
 
-function validate(req) {
+function createUserValidator(req) {
   const ajvValidate = new Ajv()
     .addFormat('email', /^[\w.+]+@\w+\.\w+$/)
     .addSchema([profileSchema, createUserSchema])
@@ -14,12 +14,10 @@ function validate(req) {
 
   if (!valid) {
     // Return Validation Error;
-    return new ValidationError(
-      generateValidationErrorMessage(ajvValidate.errors)
-    );
+    return new ValidationError(generateValidationErrorMessage(ajvValidate.errors));
   }
 
   return null;
 }
 
-export default validate;
+export default createUserValidator;

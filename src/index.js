@@ -9,9 +9,7 @@ import injectHandlerDependecies from './utils/injectHandlerDependecies';
 
 const app = express();
 const client = new elasticsearch.Client({
-  host: `${process.env.ELASTICSEARCH_PROTOCOL}://${process.env.ELASTICSEARCH_HOSTNAME}:${process.env.ELASTICSEARCH_PORT}`,
-  log: 'trace',
-  sniffOnStart: true
+  host: `${process.env.ELASTICSEARCH_PROTOCOL}://${process.env.ELASTICSEARCH_HOSTNAME}:${process.env.ELASTICSEARCH_PORT}`
 });
 
 app.use(express.json());
