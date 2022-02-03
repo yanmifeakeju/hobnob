@@ -1,11 +1,10 @@
 import assert from 'assert';
 import es from 'elasticsearch';
 import ValidationError from '../../validators/errors/validation-error';
-import createUserValidator from '../../validators/users/create';
 import create from '.';
 
 const db = new es.Client({
-  host: `${process.env.ELASTICSEARCH_PROTOCOL}://${process.env.ELASTICSEARCH_HOSTNAME}:${process.env.ELASTIC_SEARCH_PORT}`
+  host: `${process.env.ELASTICSEARCH_PROTOCOL}://${process.env.ELASTICSEARCH_HOSTNAME}:${process.env.ELASTICSEARCH_PORT}`
 });
 
 describe('User Create Engine', () => {

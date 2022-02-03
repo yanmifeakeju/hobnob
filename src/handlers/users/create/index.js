@@ -1,4 +1,4 @@
-import create from '../../../engines/users/create';
+import create from '../../../engines/users';
 import ValidationError from '../../../validators/errors/validation-error';
 
 async function createUser(req, res, db) {
