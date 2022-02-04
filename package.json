@@ -4,7 +4,7 @@
   "description": "A small user directory",
   "main": "index.js",
   "scripts": {
-    "test": "yarn run test:unit && yarn run:integration && yarn run test:e2e",
+    "test": "yarn run test:unit && yarn test:integration && yarn run test:e2e",
     "build": "rm -rf dist/ && babel src -d dist --copy-files",
     "serve": "yarn run build && dotenv -e envs/.env node dist",
     "watch": "nodemon -w src --exec yarn run serve",
@@ -14,7 +14,9 @@
     "test:e2e": "dotenv -e envs/test.env -e envs/.env ./scripts/e2e.test.sh",
     "test:unit": "dotenv -e env/test.env -e env/.env mocha -- src/**/*.unit.test.js --require @babel/register",
     "test:integration": "dotenv -e envs/test.env -e envs/.env mocha -- src/**/*.integration.test.js --require @babel/register",
-    "test:unit:coverage": "nyc --reporter=text yarn run test:unit"
+    "test:unit:coverage": "nyc --reporter=html --reporter=text yarn run test:unit",
+    "test:e2e:coverage": "nyc --reporter=html --reporter=text yarn run test:e2e",
+    "test:coverage": "nyc --reporter=html --reporter=text yarn run test"
   },
   "repository": {
     "type": "git",
